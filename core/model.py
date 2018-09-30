@@ -77,6 +77,7 @@ class Model():
         callbacks = [
             ModelCheckpoint(filepath=save_fname, monitor='loss', save_best_only=True)
         ]
+        x,y=next(data_gen)
         self.model.fit_generator(
             data_gen,
             steps_per_epoch=steps_per_epoch,
@@ -96,15 +97,27 @@ class Model():
 
     def predict_sequences_multiple(self, data, window_size, prediction_len):
         # Predict sequence of 50 steps before shifting prediction run forward by 50 steps
+        # 使用预测值来预测数据
         prediction_seqs = []
+        # print(int(len(data)/prediction_len))  # 需要预测的窗口个数
         for i in range(int(len(data)/prediction_len)):
             curr_frame = data[i*prediction_len]
+            # print(i*prediction_len, curr_frame.shape)
             predicted = []
             for j in range(prediction_len):
-                predicted.append(self.model.predict(curr_frame[newaxis, :, :])[0, 0])
+                pred = self.model.predict(curr_frame[newaxis, :, :])
+                # print(pred, pred.shape)
+                predicted.append(pred[0, 0])
+                # print(curr_frame.shape)
+                # 向前走一步(时间)
                 curr_frame = curr_frame[1:]
+                # print(curr_frame.shape)
+                # 把当前预测值插在最后
                 curr_frame = np.insert(curr_frame, [window_size-2], predicted[-1], axis=0)
+                # print(curr_frame.shape)
+            # print(len(predicted))
             prediction_seqs.append(predicted)
+        print(np.array(prediction_seqs).shape)
         return prediction_seqs
 
     def predict_sequence_full(self, data, window_size):

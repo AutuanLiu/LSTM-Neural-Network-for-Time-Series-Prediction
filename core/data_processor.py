@@ -27,6 +27,8 @@ class DataLoader():
             data_windows.append(self.data_test[i:i+seq_len])
 
         data_windows = np.array(data_windows).astype(float)
+        # print(data_windows.shape)
+        # 测试集的数据整体进行归一化处理
         data_windows = self.normalise_windows(data_windows, single_window=False) if normalise else data_windows
 
         x = data_windows[:, :-1]
@@ -42,13 +44,16 @@ class DataLoader():
         data_x = []
         data_y = []
         for i in range(self.len_train - seq_len):
-            x, y = self._next_window(i, seq_len, normalise)
+            x, y = self._next_window(i, seq_len, normalise)  # 测试集对单一窗口进行归一化
             data_x.append(x)
             data_y.append(y)
+        # print(np.array(data_x).shape, np.array(data_y).shape)
+        # 一个窗口当做一个输入输出单元或者一个样本，有多少个窗就有多少个样本
         return np.array(data_x), np.array(data_y)
 
     def generate_train_batch(self, seq_len, batch_size, normalise):
         '''Yield a generator of training data from filename on given list of cols split for train/test'''
+        # batch_size 个窗 为一组训练数据
         i = 0
         while i < (self.len_train - seq_len):
             x_batch = []
@@ -61,6 +66,7 @@ class DataLoader():
                 x_batch.append(x)
                 y_batch.append(y)
                 i += 1
+            # print(np.array(x_batch).shape, np.array(y_batch).shape)
             yield np.array(x_batch), np.array(y_batch)
 
     def _next_window(self, i, seq_len, normalise):

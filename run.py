@@ -61,6 +61,7 @@ def main():
 	)
 	'''
     # out-of memory generative training
+    # math.ceil(所有窗的个数 / batch_size)
     steps_per_epoch = math.ceil((data.len_train - configs['data']['sequence_length']) / configs['training']['batch_size'])
     model.train_generator(
         data_gen=data.generate_train_batch(
@@ -80,7 +81,7 @@ def main():
 
     # predictions = model.predict_sequences_multiple(x_test, configs['data']['sequence_length'], configs['data']['sequence_length'])
     predictions = model.predict_sequence_full(x_test, configs['data']['sequence_length'])
-    predictions = model.predict_point_by_point(x_test)
+    # predictions = model.predict_point_by_point(x_test)
 
     # plot_results_multiple(predictions, y_test, configs['data']['sequence_length'])
     plot_results(predictions, y_test)
